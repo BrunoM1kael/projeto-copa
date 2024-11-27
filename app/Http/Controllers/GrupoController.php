@@ -14,17 +14,12 @@ class GrupoController extends Controller
      * Display a listing of the resource.
      */
 
-    public function adicionarGrupos()
+    public function adicionarGrupos($modo)
     {
-
-
         $grupos = Grupo::get('id')->implode('id');
-
-        //dd($grupos);
         if ($grupos == '') {
             $grupos = ['Grupo A', 'Grupo B', 'Grupo C', 'Grupo D', 'Grupo E', 'Grupo F', 'Grupo G', 'Grupo H'];
 
-            // Criar os grupos na tabela "grupos"
             foreach ($grupos as $grupo) {
                 DB::table('grupos')->insert([
                     'nome' => $grupo,
@@ -32,16 +27,18 @@ class GrupoController extends Controller
                     'updated_at' => now(),
                 ]);
             }
-            return redirect()->route('add.selecoes');
+
+            return redirect()->route('add.selecoes', compact('modo'));
         } else {
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             DB::table('times')->truncate();
             DB::table('classificacao')->truncate();
             DB::table('partidas')->truncate();
+            DB::table('playoffs')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            if ($modo == 'times') return redirect()->route('criar.times');
 
-
-            return redirect()->route('add.selecoes');
+            return redirect()->route('add.selecoes', compact('modo'));
         }
     }
 }
