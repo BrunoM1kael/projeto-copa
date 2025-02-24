@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::Table('classificacao', function (Blueprint $table) {
-            $table->integer('GM')->after('derrota');
-            $table->integer('GC')->after('GM');
+            $table->integer('GM')->default(0)->after('derrota');
+            $table->integer('GC')->default(0)->after('GM');
         });
     }
 

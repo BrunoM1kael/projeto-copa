@@ -161,34 +161,38 @@
 
             .match {
                 width: 80%;
-                /* Ajuste de largura para dispositivos móveis */
             }
         }
     </style>
 </head>
-
 <body>
     <h1>Playoffs - Copa do Mundo</h1>
+    
+    <!-- Timer global -->
+    <div id="timer" style="text-align: center; font-size: 1.5em; margin-bottom: 10px;">
+        Minuto: 0
+    </div>
+
     <div class="phase-title" style="text-align: center">
         {{ ucfirst($fase) == 'Final' ? 'Final' : ucfirst($fase) . ' de Final' }}
     </div>
+    
     @if ($fase)
         <div class="playoff-container {{ $fase === 'final' ? 'final-phase' : '' }}">
             <!-- Coluna Esquerda -->
             <div class="playoff-column">
-
                 @foreach ($partidas->slice(0, ceil($partidas->count() / 2)) as $partida)
-                    <div class="match">
-                        <div class="team ">
+                    <div class="match" data-final-gols1="{{ $partida->gols1 }}" data-final-gols2="{{ $partida->gols2 }}">
+                        <div class="team">
                             <input type="text" readonly value="{{ $partida->time1->nome }}"
                                 class="{{ $partida->vencedor == $partida->time1->id ? 'winner' : '' }}"
                                 style="text-align: right">
                         </div>
                         <div class="score">
                             @if ($partida->penaltis)
-                                <div class="penalty">{{ $partida->penaltis }}</div>
+                                <div class="penalty" style="display: none;">{{ $partida->penaltis }}</div>
                             @endif
-                            <div>{{ $partida->gols1 }} x {{ $partida->gols2 }}</div>
+                            <div class="display-score">0 x 0</div>
                         </div>
                         <div class="team">
                             <input type="text" readonly value="{{ $partida->time2->nome }}"
@@ -201,16 +205,17 @@
             <!-- Coluna Direita -->
             <div class="playoff-column">
                 @foreach ($partidas->slice(ceil($partidas->count() / 2)) as $partida)
-                    <div class="match">
+                    <div class="match" data-final-gols1="{{ $partida->gols1 }}" data-final-gols2="{{ $partida->gols2 }}">
                         <div class="team">
                             <input type="text" readonly value="{{ $partida->time1->nome }}"
-                                class="{{ $partida->vencedor == $partida->time1->id ? 'winner' : '' }}"style="text-align: right">
+                                class="{{ $partida->vencedor == $partida->time1->id ? 'winner' : '' }}"
+                                style="text-align: right">
                         </div>
                         <div class="score">
                             @if ($partida->penaltis)
-                                <div class="penalty">{{ $partida->penaltis }}</div>
+                                <div class="penalty" style="display: none;">{{ $partida->penaltis }}</div>
                             @endif
-                            <div>{{ $partida->gols1 }} x {{ $partida->gols2 }}</div>
+                            <div class="display-score">0 x 0</div>
                         </div>
                         <div class="team">
                             <input type="text" readonly value="{{ $partida->time2->nome }}"
@@ -220,13 +225,13 @@
                 @endforeach
             </div>
         </div>
+    @endif
 
+    <div id="buttons" style="display: none; text-align: center; margin-top: 20px;">
         @if ($fase === 'final')
-        <form action="{{ route ('home') }}">
-            <button type="submit" class="btn btn-success">
-                Terminar
-            </button>
-        </form>
+            <form action="{{ route('home') }}">
+                <button type="submit" class="btn btn-success">Terminar</button>
+            </form>
             @php
                 $campeao = $partidas->firstWhere('fase', 'final')->resultado;
                 $timeCampeao = $campeao ? \App\Models\Times::find($campeao)->nome : 'Desconhecido';
@@ -235,15 +240,80 @@
             <form action="{{ route('add.playoff.fase') }}" method="POST">
                 @csrf
                 <input type="hidden" name="fase_atual" value="{{ $fase }}">
-                <button type="submit" class="btn btn-primary">
-                    Avançar para próxima fase
-                </button>
+                <button type="submit" class="btn btn-primary">Avançar para próxima fase</button>
             </form>
         @endif
-    @endif
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Inclusão do jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Função para gerar minutos aleatórios únicos (entre 1 e 90) para cada gol
+        function gerarMinutos(qtd) {
+            var minutos = [];
+            while (minutos.length < qtd) {
+                var min = Math.floor(Math.random() * 90) + 1;
+                if (minutos.indexOf(min) === -1) {
+                    minutos.push(min);
+                }
+            }
+            return minutos.sort(function(a, b) { return a - b; });
+        }
 
+        $(document).ready(function() {
+            var totalMinutos = 90;
+            var duracaoSimulacao = 5000; // 10 segundos para simular 90 minutos
+            var intervalo = duracaoSimulacao / totalMinutos; // ~111ms por "minuto"
+            var minutoAtual = 0;
+
+            $('.match').each(function() {
+                var match = $(this);
+                var finalGol1 = parseInt(match.data('final-gols1'));
+                var finalGol2 = parseInt(match.data('final-gols2'));
+
+                match.find('.display-score').text('0 x 0');
+
+                match.data('gols1-minutos', gerarMinutos(finalGol1));
+                match.data('gols2-minutos', gerarMinutos(finalGol2));
+
+                match.data('score1', 0);
+                match.data('score2', 0);
+            });
+
+            var timerInterval = setInterval(function() {
+                minutoAtual++;
+                $('#timer').text("Minuto: " + minutoAtual);
+
+                $('.match').each(function() {
+                    var match = $(this);
+                    var score1 = match.data('score1');
+                    var score2 = match.data('score2');
+                    var gols1Minutos = match.data('gols1-minutos');
+                    var gols2Minutos = match.data('gols2-minutos');
+
+                    if ($.inArray(minutoAtual, gols1Minutos) !== -1) {
+                        score1++;
+                        match.data('score1', score1);
+                    }
+                    if ($.inArray(minutoAtual, gols2Minutos) !== -1) {
+                        score2++;
+                        match.data('score2', score2);
+                    }
+
+                    // Atualiza a exibição do placar
+                    match.find('.display-score').text(score1 + " x " + score2);
+                });
+
+                if (minutoAtual >= totalMinutos) {
+                    clearInterval(timerInterval);
+                    $('.penalty').fadeIn();
+                    $('#buttons').fadeIn();
+                }
+            }, intervalo);
+        });
+    </script>
 </body>
+
+
 
 </html>

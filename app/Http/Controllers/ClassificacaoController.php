@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Classificacao;
 use App\Models\Partida;
 use App\Models\Times;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class ClassificacaoController extends Controller
 {
@@ -21,14 +19,7 @@ class ClassificacaoController extends Controller
             foreach ($times as $time) {
                 Classificacao::create([
                     'grupo_id' => $time->grupo_id,
-                    'times_id' => $time->id,
-                    'vitoria' => 0,
-                    'empate' => 0,
-                    'derrota' => 0,
-                    'GM' => 0,
-                    'GC' => 0,
-                    'saldo_gols' => 0,
-                    'pontos' => 0,
+                    'times_id' => $time->id
                 ]);
             }
         }

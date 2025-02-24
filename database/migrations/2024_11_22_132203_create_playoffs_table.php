@@ -16,10 +16,10 @@ return new class extends Migration
             $table->string('fase');
             $table->foreignId('adv1')->constrained('times');
             $table->foreignId('adv2')->constrained('times');
-            $table->integer('gols1');
-            $table->integer('gols2');
-            $table->string('penaltis');
-            $table->string('resultado')->nullable();
+            $table->integer('gols1')->default(0);
+            $table->integer('gols2')->default(0);
+            $table->string('penaltis')->default(0);
+            $table->string('resultado')->default(0);
             $table->timestamps();
         });
     }

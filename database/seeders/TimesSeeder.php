@@ -24,8 +24,6 @@ class TimesSeeder extends Seeder
             DB::table('times')->insert([
                 'nome' => $time,
                 'grupo_id' => (int)($index / 4) + 1, // Determina o grupo com base no índice
-                'created_at' => now(),
-                'updated_at' => now(),
             ]);
         }
     }

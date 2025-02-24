@@ -23,6 +23,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/criar/times', [TimesController::class, 'index'])->name('criar.times');
 Route::get('/times/{modo}', [TimesController::class, 'adicionarSelecoes'])->name('add.selecoes');
 Route::post('/times/add/{modo?}', [TimesController::class, 'adicionarTimes'])->name('adicionar.times');
+Route::get('/times/mundial/add/{modo?}', [TimesController::class, 'adicionarTimesMundial'])->name('add.grupos.super');
 Route::get('/grupos/{modo}', [GrupoController::class, 'adicionarGrupos'])->name('add.grupos');
 Route::get('/partidas/{modo?}', [PartidaController::class, 'adicionarPartidas'])->name('add.partidas');
 Route::get('/classificacao/{modo?}', [ClassificacaoController::class, 'adicionarClassificacao'])->name('add.classificacao');

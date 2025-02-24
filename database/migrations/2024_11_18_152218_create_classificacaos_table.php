@@ -18,12 +18,12 @@ return new class extends Migration
 
             $table->unsignedBigInteger('times_id');
             $table->foreign('times_id')->references('id')->on('times');
-            
-            $table->integer('vitoria');
-            $table->integer('empate');
-            $table->integer('derrota');
-            $table->integer('saldo_gols');
-            $table->integer('pontos');
+
+            $table->integer('vitoria')->default(0);
+            $table->integer('empate')->default(0);
+            $table->integer('derrota')->default(0);
+            $table->integer('saldo_gols')->default(0);
+            $table->integer('pontos')->default(0);
             $table->timestamps();
         });
     }

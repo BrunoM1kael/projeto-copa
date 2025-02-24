@@ -15,9 +15,7 @@ class GruposSeeder extends Seeder
         // Criar os grupos na tabela "grupos"
         foreach ($grupos as $grupo) {
             DB::table('grupos')->insert([
-                'nome' => $grupo,
-                'created_at' => now(),
-                'updated_at' => now(),
+                'nome' => $grupo
             ]);
         }
     }

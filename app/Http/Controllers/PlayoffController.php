@@ -44,15 +44,10 @@ class PlayoffController extends Controller
                     $primeiroDoGrupo = $primeiroGrupo->first();
                     $segundoDoGrupo = $segundoGrupo->last();
 
-                    Playoff::updateOrCreate([
+                    Playoff::Create([
                         'fase' => $fase,
                         'adv1' => $primeiroDoGrupo->times_id,
                         'adv2' => $segundoDoGrupo->times_id,
-                    ], [
-                        'gols1' => 0,
-                        'gols2' => 0,
-                        'penaltis' => 0,
-                        'resultado' => 0,
                     ]);
                 }
             }
@@ -64,29 +59,14 @@ class PlayoffController extends Controller
             if ($partidas->count() != 8) {
                 return back()->withErrors('Número inválido de partidas das oitavas para gerar os confrontos das quartas.');
             }
-
-            $confrontos = [
-                ['grupo1' => $partidas[0]->resultado, 'grupo2' => $partidas[1]->resultado],
-                ['grupo1' => $partidas[2]->resultado, 'grupo2' => $partidas[3]->resultado],
-                ['grupo1' => $partidas[4]->resultado, 'grupo2' => $partidas[5]->resultado],
-                ['grupo1' => $partidas[6]->resultado, 'grupo2' => $partidas[7]->resultado],
-            ];
+            $confrontos = $partidas->chunk(2);
 
             foreach ($confrontos as $confronto) {
-                $primeiroGrupo = $partidas->where('resultado', $confronto['grupo1'])->first();
-                $segundoGrupo = $partidas->where('resultado', $confronto['grupo2'])->first();
-
-                if ($primeiroGrupo && $segundoGrupo) {
-
-                    Playoff::updateOrCreate([
+                if ($confronto->count() == 2) {
+                    Playoff::create([
                         'fase' => $fase,
-                        'adv1' => $primeiroGrupo->resultado,
-                        'adv2' => $segundoGrupo->resultado,
-                    ], [
-                        'gols1' => 0,
-                        'gols2' => 0,
-                        'penaltis' => 0,
-                        'resultado' => 0,
+                        'adv1' => $confronto->first()->resultado,
+                        'adv2' => $confronto->last()->resultado,
                     ]);
                 } else {
                     return back()->withErrors('Erro ao formar os confrontos das quartas. Grupos não encontrados.');
@@ -103,26 +83,14 @@ class PlayoffController extends Controller
                 return back()->withErrors('Número inválido de partidas das quartas para gerar os confrontos das semis.');
             }
 
-            $confrontos = [
-                ['grupo1' => $partidas[0]->resultado, 'grupo2' => $partidas[1]->resultado],
-                ['grupo1' => $partidas[2]->resultado, 'grupo2' => $partidas[3]->resultado],
-            ];
-
+            $confrontos = $partidas->chunk(2);
+            
             foreach ($confrontos as $confronto) {
-                $primeiroGrupo = $partidas->where('resultado', $confronto['grupo1'])->first();
-                $segundoGrupo = $partidas->where('resultado', $confronto['grupo2'])->first();
-
-                if ($primeiroGrupo && $segundoGrupo) {
-
-                    Playoff::updateOrCreate([
+                if ($confronto->count() == 2) {
+                    Playoff::create([
                         'fase' => $fase,
-                        'adv1' => $primeiroGrupo->resultado,
-                        'adv2' => $segundoGrupo->resultado,
-                    ], [
-                        'gols1' => 0,
-                        'gols2' => 0,
-                        'penaltis' => 0,
-                        'resultado' => 0,
+                        'adv1' => $confronto->first()->resultado,
+                        'adv2' => $confronto->last()->resultado,
                     ]);
                 } else {
                     return back()->withErrors('Erro ao formar os confrontos das quartas. Grupos não encontrados.');
@@ -137,30 +105,21 @@ class PlayoffController extends Controller
                 return back()->withErrors('Número inválido de partidas das semis para gerar os confrontos da final.');
             }
 
-            $confrontos = [['grupo1' => $partidas[0]->resultado, 'grupo2' => $partidas[1]->resultado],];
-
+            $confrontos = $partidas->chunk(2);
+            
             foreach ($confrontos as $confronto) {
-                $primeiroGrupo = $partidas->where('resultado', $confronto['grupo1'])->first();
-                $segundoGrupo = $partidas->where('resultado', $confronto['grupo2'])->first();
-
-                if ($primeiroGrupo && $segundoGrupo) {
-                    Playoff::updateOrCreate([
+                if ($confronto->count() == 2) {
+                    Playoff::create([
                         'fase' => $fase,
-                        'adv1' => $primeiroGrupo->resultado,
-                        'adv2' => $segundoGrupo->resultado,
-                    ], [
-                        'gols1' => 0,
-                        'gols2' => 0,
-                        'penaltis' => 0,
-                        'resultado' => 0,
+                        'adv1' => $confronto->first()->resultado,
+                        'adv2' => $confronto->last()->resultado,
                     ]);
                 } else {
-                    return back()->withErrors('Erro ao formar os confrontos da final. Grupos não encontrados.');
+                    return back()->withErrors('Erro ao formar os confrontos das quartas. Grupos não encontrados.');
                 }
             }
             return redirect()->route('playoff.partidas', ['fase' => 'final']);
         }
-        return redirect()->route('playoff.partidas', ['fase' => 'oitavas']);
     }
     public function addPlayoff(Request $request)
     {
@@ -210,15 +169,24 @@ class PlayoffController extends Controller
         $penaltis1 = 0;
         $penaltis2 = 0;
 
-        for ($i = 0; $i < 5; $i++) {
+        
+         for ($i = 0; $i < 5; $i++) {
+            if ($i <= 3) {
             $penaltis1 += rand(0, 1);
             $penaltis2 += rand(0, 1);
-        }
+            }   
+            else if ($i >= 4 &&  $penaltis1 - $penaltis2 > 3 || $penaltis2 - $penaltis1 > 3 ){
+                $penaltis1 += rand(0, 1);
+                $penaltis2 += rand(0, 1);
+            }else {
+                break;
+            }
+        } 
 
         while ($penaltis1 === $penaltis2) {
             $penaltis1 += rand(0, 1);
             $penaltis2 += rand(0, 1);
-        }
+        } 
 
         $partida->penaltis = $penaltis1 . "x" . $penaltis2;
 
