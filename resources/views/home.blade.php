@@ -18,7 +18,7 @@
 
 <div id="config-copa-do-mundo" class="competition-config" style="display: none;">
     <button id="btn-voltar-copa" class="btn-back">&larr; Voltar</button>
-    <h2>Configuração da Copa do Mundo</h2>
+    <h3>Configuração da Copa do Mundo</h3>
     <div class="form-container">
         <div class="form-item">
             <form action="{{ route('add.grupos', 'normal') }}">
@@ -49,7 +49,7 @@
 
 <div id="config-super-mundial" class="competition-config" style="display: none;">
     <button id="btn-voltar-super" class="btn-back">&larr; Voltar</button>
-    <h1>Configuração do Super Mundial de Clubes</h1>
+    <h3>Configuração do Super Mundial de Clubes</h3>
     <div class="form-container">
         <div class="form-item">
             <form action="{{ route('add.grupos', 'normal.s') }}">
