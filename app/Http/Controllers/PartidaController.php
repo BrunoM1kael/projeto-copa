@@ -120,6 +120,6 @@ class PartidaController extends Controller
 
     $grupos = Grupo::all();
 
-    return view('teste', compact('partidas', 'rodada', 'grupos'));
+    return view('partidas/partidas', compact('partidas', 'rodada', 'grupos'));
 }
 }

@@ -161,7 +161,7 @@ class PlayoffController extends Controller
         }
 
         // Certifique-se de que a view está sendo carregada corretamente
-        return view('playoff', compact('partidas', 'fase'));
+        return view('playoff/playoff', compact('partidas', 'fase'));
     }
 
     public function processarPenaltis($partida)

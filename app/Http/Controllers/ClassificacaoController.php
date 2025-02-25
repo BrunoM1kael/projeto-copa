@@ -36,6 +36,6 @@ class ClassificacaoController extends Controller
             ->orderBy('GM', 'desc')->orderBy('GC', 'asc')
             ->get();
 
-        return view('classificacao', compact('classificacao', 'rodada'));
+        return view('partidas/classificacao', compact('classificacao', 'rodada'));
     }
 }
