@@ -49,12 +49,6 @@ Este projeto simula partidas da Copa do Mundo utilizando Laravel. As partidas s�
    php artisan serve
    ```
 
-7. (Opcional) Caso o projeto tenha frontend em Vue.js:
-   ```sh
-   npm install
-   npm run dev
-   ```
-
 ## Funcionalidades
 
 - Simulação automática de partidas com atualização do placar ao longo do tempo.
